@@ -1,0 +1,52 @@
+#!/bin/bash
+set -e
+set -o pipefail
+set -u
+
+CD_ISO="$(pwd)/WAR2BNECD.iso"
+CD_MNT="/mnt/cd"
+CONTAINER="war2"
+DOCKER_IMAGE="pda/war2"
+PULSE_AUDIO_SOCK="/run/user/1000/pulse/native"
+VOLUME="war2wine"
+X11_SOCK="/tmp/.X11-unix"
+
+main() {
+  authorize_x11
+  create_volume
+  docker_run
+}
+
+authorize_x11() {
+  if ! xhost | grep '^LOCAL:$' >/dev/null; then
+    xhost local:root
+  fi
+}
+
+create_volume() {
+  if ! docker volume inspect "$VOLUME"; then
+    docker volume create "$VOLUME"
+  fi
+}
+
+docker_run() {
+  docker run \
+    --env DISPLAY="unix$DISPLAY" \
+    --env PULSE_SERVER="unix:/run/pulse/native" \
+    --hostname war2 \
+    --interactive \
+    --name "$CONTAINER" \
+    --net host \
+    --privileged \
+    --rm \
+    --tty \
+    --volume "$CD_ISO:$CD_ISO" \
+    --volume "$CD_MNT:$CD_MNT" \
+    --volume "$PULSE_AUDIO_SOCK:/run/pulse/native" \
+    --volume "$VOLUME:/root/.wine" \
+    --volume "$X11_SOCK:$X11_SOCK" \
+    "$DOCKER_IMAGE" \
+    bash
+}
+
+main
