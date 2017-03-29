@@ -24,7 +24,7 @@ authorize_x11() {
 }
 
 create_volume() {
-  if ! docker volume inspect "$VOLUME"; then
+  if ! docker volume inspect "$VOLUME" &>/dev/null; then
     docker volume create "$VOLUME"
   fi
 }
