@@ -4,7 +4,7 @@ set -o pipefail
 set -u
 
 CD_ISO="$(pwd)/WAR2BNECD.iso"
-CD_MNT="/mnt/cd"
+CD_MNT="/mnt/war2"
 CONTAINER="war2"
 DOCKER_IMAGE="pda/war2"
 PULSE_AUDIO_SOCK="/run/user/1000/pulse/native"
